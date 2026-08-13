@@ -1,0 +1,56 @@
+datasource db {
+  provider = env("DATABASE_PROVIDER")
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Admin {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+}
+
+model Setting {
+  key   String @id
+  value String
+}
+
+model Question {
+  id      Int      @id @default(autoincrement())
+  q       String
+  options String   // JSON stringified array of options
+  correct Int
+  answers Answer[]
+}
+
+model Student {
+  id         String    @id @default(uuid())
+  name       String
+  rollNumber String    @unique
+  attempts   Attempt[]
+}
+
+model Attempt {
+  id             String   @id @default(uuid())
+  studentId      String
+  student        Student  @relation(fields: [studentId], references: [id])
+  score          Int
+  totalQuestions Int
+  timeTaken      Int      // total time in seconds
+  createdAt      DateTime @default(now())
+  answers        Answer[]
+}
+
+model Answer {
+  id             String   @id @default(uuid())
+  attemptId      String
+  attempt        Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId     Int
+  question       Question @relation(fields: [questionId], references: [id])
+  selectedOption Int      // 0-3, or -1 for unanswered
+  isCorrect      Boolean
+  timeSpent      Int      // time in seconds
+}
