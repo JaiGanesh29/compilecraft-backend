@@ -29,15 +29,15 @@ app.use((req, res, next) => {
 app.use('/api/admin', adminRoutes);
 app.use('/api/quiz', quizRoutes);
 
-// Serve static frontend files from dist
-app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+// Serve static frontend files from public folder
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Fallback all non-API paths to serve index.html (SPA history routing support)
 app.get('*path', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
-  res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Catch-all Error handler
