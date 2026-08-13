@@ -46,6 +46,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong on the server' });
 });
 
-app.listen(PORT, () => {
-  console.log(`CompileCraft server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`CompileCraft server running on port ${PORT}`);
 });
