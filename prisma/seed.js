@@ -102,7 +102,10 @@ async function main() {
   console.log('Settings seeded.');
 
   // 3. Seed Questions
-  // Delete all existing questions first to prevent duplicates or clean sync
+  // Delete all existing records in referencing tables first to prevent foreign key violations
+  await prisma.answer.deleteMany({});
+  await prisma.attempt.deleteMany({});
+  await prisma.student.deleteMany({});
   await prisma.question.deleteMany({});
   
   for (let i = 0; i < questions.length; i++) {
