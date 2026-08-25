@@ -3,66 +3,256 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 const questions = [
-  {"q": "A compiler engineer designs a syntax-directed definition where all attributes of a node are computed using only its children’s values. Which classification best fits this definition?", "options": ["S-attributed definition", "L-attributed definition", "Inherited definition", "Context-sensitive definition"], "correct": 0},
-  {"q": "While implementing an expression evaluator, an attribute value is computed from child nodes only. What type of attribute is this?", "options": ["Synthesized attribute", "Inherited attribute", "Global attribute", "Dynamic attribute"], "correct": 0},
-  {"q": "If a dependency graph for attribute evaluation contains a cycle, what does it indicate?", "options": ["Efficient evaluation order exists", "Attributes can be evaluated in parallel", "Circular dependency prevents evaluation", "Grammar is LL(1)"], "correct": 2},
-  {"q": "In an L-attributed definition, an inherited attribute of a symbol on the right-hand side must depend on:", "options": ["Symbols to its right", "Parent and left siblings", "Only itself", "Terminal symbols only"], "correct": 1},
-  {"q": "Why are all S-attributed definitions considered L-attributed?", "options": ["They use only synthesized attributes", "They require top-down parsing", "They include inherited attributes", "They are mutually exclusive"], "correct": 0},
-  {"q": "During syntax tree construction, which function is used to create a leaf node for a constant value?", "options": ["mknode(op, left, right)", "mkleaf(num, value)", "mkop(id, entry)", "createNode()"], "correct": 1},
-  {"q": "When attribute evaluation order is unclear, which technique is used to determine a valid sequence?", "options": ["Depth-first traversal", "Breadth-first traversal", "Topological sorting", "Backtracking"], "correct": 2},
-  {"q": "Which type of checking ensures that operations are applied to compatible data types before execution?", "options": ["Dynamic checking", "Static checking", "Lexical checking", "Runtime parsing"], "correct": 1},
-  {"q": "Consider the statement: float x = \"hello\"; Which compiler phase detects this error?", "options": ["Lexical analysis", "Syntax analysis", "Semantic analysis", "Code generation"], "correct": 2},
-  {"q": "In a dependency graph, if node A points to node B, what does this indicate?", "options": ["A depends on B", "B depends on A", "Both are independent", "Both execute together"], "correct": 1},
-  {"q": "In array-based syntax tree representation, what does each index represent?", "options": ["Memory address", "Pointer to node structure", "Line number", "Token value"], "correct": 1},
-  {"q": "In an LR parser stack, for production A → XYZ, where is the attribute of X located?", "options": ["val[top]", "val[top-1]", "val[top-2]", "val[top-3]"], "correct": 2},
-  {"q": "What distinguishes an attribute grammar from a general syntax-directed definition?", "options": ["Only synthesized attributes are allowed", "Functions must not have side effects", "Must use LL parsing", "Must be bottom-up"], "correct": 1},
-  {"q": "When eliminating left recursion, which attributes help preserve evaluation order?", "options": ["Synthesized attributes", "Inherited attributes", "Static attributes", "Temporary attributes"], "correct": 1},
-  {"q": "Why are marker nonterminals used in bottom-up parsing?", "options": ["To reduce grammar size", "To manage inherited attributes", "To eliminate recursion", "To simplify tokens"], "correct": 1},
-  {"q": "In the type expression array(1..5, float), what does float represent?", "options": ["Index type", "Element type", "Constructor", "Range"], "correct": 1},
-  {"q": "Under name equivalence, when are two types considered equal?", "options": ["Same structure", "Same name", "Same memory size", "Same value"], "correct": 1},
-  {"q": "What is the purpose of type coercion in expressions?", "options": ["Remove variables", "Convert types automatically", "Generate code", "Reduce memory"], "correct": 1},
-  {"q": "Which equivalence method considers two types equal if their structures match?", "options": ["Name equivalence", "Structural equivalence", "Static equivalence", "Dynamic equivalence"], "correct": 1},
-  {"q": "Which process is used in compilers to resolve overloaded function types?", "options": ["Parsing and scanning", "Bottom-up synthesis and top-down refinement", "Code generation", "Tokenization"], "correct": 1},
-  {"q": "In a syntax-directed definition, placing print(E.val) at the end ensures:", "options": ["Initialization", "Final output after evaluation", "Type conversion", "Error handling"], "correct": 1},
-  {"q": "In L-attributed definitions, inherited attributes can depend on:", "options": ["Right siblings only", "Parent and left siblings", "Entire tree", "Constants only"], "correct": 1},
-  {"q": "Which phase provides structure for static program checks?", "options": ["Lexical analysis", "Syntax analysis", "Semantic analysis", "Optimization"], "correct": 2},
-  {"q": "In type unification, what must be done for child nodes?", "options": ["Ignore them", "Delete them", "Recursively unify", "Convert them"], "correct": 2},
-  {"q": "What advantage does a DAG provide over a syntax tree?", "options": ["Larger size", "Duplicate subexpressions removed", "Easier parsing", "Linear structure"], "correct": 1},
-  {"q": "Which type is required for operands of the div operator?", "options": ["Float", "Integer", "Boolean", "Character"], "correct": 1},
-  {"q": "For LL(1) grammar with L-attributed definitions, which parsing is best?", "options": ["Bottom-up", "Predictive parsing", "Operator parsing", "Shift-reduce"], "correct": 1},
-  {"q": "What does mknode('*', left, right) return?", "options": ["Leaf node", "Interior node", "Root node", "Pointer to operand"], "correct": 1},
-  {"q": "What additional data does a symbol table store for semantic analysis?", "options": ["Token length", "Type and scope", "Comments", "Operators"], "correct": 1},
-  {"q": "What is the purpose of topological sorting in attribute evaluation?", "options": ["Reduce grammar", "Determine evaluation order", "Remove recursion", "Generate code"], "correct": 1},
-  {"q": "A compiler computes the value of an expression node only after all child expressions are evaluated. Which traversal is most suitable?", "options": ["Preorder", "Inorder", "Postorder", "Level Order"], "correct": 2},
-  {"q": "A semantic rule passes datatype information from a declaration node down to variable nodes. Which attribute type is used?", "options": ["Synthesized attribute", "Inherited attribute", "Static attribute", "Terminal attribute"], "correct": 1},
-  {"q": "In bottom-up parsing, synthesized attributes are preferred because:", "options": ["Parent nodes are processed before children", "Child values are available at reduction time", "Inherited attributes are faster", "They reduce parsing table size"], "correct": 1},
-  {"q": "A compiler uses a decorated parse tree to:", "options": ["Store lexical tokens only", "Annotate parse tree with attribute values", "Eliminate recursion", "Optimize generated code"], "correct": 1},
-  {"q": "Which of the following best describes a syntax tree?", "options": ["Full parse tree with grammar symbols", "Condensed hierarchical representation of program structure", "Flat token list", "Machine code tree"], "correct": 1},
-  {"q": "A Directed Acyclic Graph (DAG) is preferred over syntax tree when:", "options": ["Grammar is ambiguous", "Common subexpressions need sharing", "Parsing is top-down", "Tokens are missing"], "correct": 1},
-  {"q": "Which semantic analysis task verifies that a variable is declared before use?", "options": ["Type inference", "Scope checking", "Constant folding", "Code generation"], "correct": 1},
-  {"q": "A compiler checks function call arguments against parameter types during:", "options": ["Lexical analysis", "Syntax analysis", "Semantic analysis", "Optimization"], "correct": 2},
-  {"q": "Which symbol table entry is MOST useful for detecting redeclaration errors?", "options": ["Token ID", "Scope information", "Memory address only", "Parse stack position"], "correct": 1},
-  {"q": "Type inference in compilers is primarily used to:", "options": ["Generate tokens", "Deduce unspecified data types", "Remove recursion", "Optimize loops"], "correct": 1},
-  {"q": "If two record types have identical fields but different names, structural equivalence considers them:", "options": ["Different", "Equivalent", "Invalid", "Ambiguous"], "correct": 1},
-  {"q": "If the same two record types above are checked using name equivalence, they are:", "options": ["Equivalent", "Different", "Recursive", "Dynamic"], "correct": 1},
-  {"q": "What is the primary role of coercion in mixed-type arithmetic expressions?", "options": ["Remove operators", "Convert operands to compatible types", "Simplify parse tree", "Reduce memory"], "correct": 1},
-  {"q": "Which semantic error is detected when assigning an integer to a boolean variable?", "options": ["Syntax error", "Type mismatch", "Scope violation", "Parsing conflict"], "correct": 1},
-  {"q": "A compiler uses unification during semantic analysis to:", "options": ["Merge tokens", "Match compatible type expressions", "Remove left recursion", "Build parsing table"], "correct": 1},
-  {"q": "Which data structure helps represent shared subexpressions efficiently?", "options": ["Parse Table", "Stack", "DAG", "Queue"], "correct": 2},
-  {"q": "A syntax-directed translation scheme differs from an SDD because it:", "options": ["Has no semantic rules", "Embeds semantic actions within productions", "Uses only inherited attributes", "Eliminates parse tree"], "correct": 1},
-  {"q": "When generating postfix notation, which attribute is commonly synthesized?", "options": ["Type", "Code string", "Scope", "Offset"], "correct": 1},
-  {"q": "In semantic-directed translation, marker nonterminals are introduced mainly to:", "options": ["Create tokens", "Execute actions at intermediate parse points", "Remove ambiguity", "Reduce grammar size"], "correct": 1},
-  {"q": "Which compiler phase allocates memory offsets to variables?", "options": ["Lexical Analysis", "Syntax Analysis", "Semantic Analysis", "Linking"], "correct": 2},
-  {"q": "A variable’s offset in an activation record is generally stored in:", "options": ["Parse Table", "Symbol Table", "Token Stream", "DAG"], "correct": 1},
-  {"q": "Which attribute type is easiest to evaluate in bottom-up parsers?", "options": ["Inherited", "Synthesized", "Global", "Static"], "correct": 1},
-  {"q": "Why is inherited attribute evaluation difficult in LR parsing?", "options": ["Child nodes are unavailable", "Parent context may be unknown during shift/reduce", "Tokens are ambiguous", "Grammar becomes regular"], "correct": 1},
-  {"q": "Which parsing strategy naturally supports inherited attributes?", "options": ["Bottom-up LR Parsing", "Shift-Reduce Parsing", "Top-down Recursive Descent", "Operator Precedence Parsing"], "correct": 2},
-  {"q": "A compiler detects multiple declarations of the same variable in one scope using:", "options": ["Syntax Tree", "Symbol Table Lookup", "Dependency Graph", "Parse Stack"], "correct": 1},
-  {"q": "Which of the following is NOT typically part of semantic analysis?", "options": ["Type Checking", "Scope Resolution", "Intermediate Code Generation", "Function Argument Validation"], "correct": 2},
-  {"q": "A dependency graph with no cycles guarantees:", "options": ["Grammar is LL(1)", "Valid attribute evaluation order exists", "Parsing is deterministic", "Code is optimized"], "correct": 1},
-  {"q": "Which representation omits punctuation and grammar-specific nodes?", "options": ["Parse Tree", "Syntax Tree", "Dependency Graph", "Symbol Table"], "correct": 1},
-  {"q": "A compiler builds a DAG instead of a syntax tree mainly for:", "options": ["Better lexical analysis", "Code optimization opportunities", "Simpler parsing", "Faster tokenization"], "correct": 1},
-  {"q": "Semantic analysis primarily ensures that a program is:", "options": ["Lexically valid", "Grammatically correct", "Meaningfully correct according to language rules", "Fully optimized"], "correct": 2}
+  {
+    "q": "Which phase of a compiler converts intermediate code into target code?",
+    "options": ["Lexical analysis", "Code generation", "Syntax analysis", "Semantic analysis"],
+    "correct": 1
+  },
+  {
+    "q": "What is the main objective of code optimization?",
+    "options": ["Increase source code size", "Improve program efficiency", "Remove the compiler", "Change the programming language"],
+    "correct": 1
+  },
+  {
+    "q": "Which of the following is a principal source of optimization?",
+    "options": ["Redundant computations", "Comments", "Variable names", "Whitespace"],
+    "correct": 0
+  },
+  {
+    "q": "Peephole optimization examines:",
+    "options": ["The entire source program", "A small sequence of target instructions", "Only the symbol table", "Only input characters"],
+    "correct": 1
+  },
+  {
+    "q": "A basic block has:",
+    "options": ["Multiple entry points", "One entry and one exit", "No entry point", "Multiple exits only"],
+    "correct": 1
+  },
+  {
+    "q": "Which optimization removes computations whose results are not used?",
+    "options": ["Dead-code elimination", "Loop unrolling", "Constant folding", "Register spilling"],
+    "correct": 0
+  },
+  {
+    "q": "Replacing a constant expression by its computed value is called:",
+    "options": ["Constant folding", "Copy propagation", "Strength reduction", "Code motion"],
+    "correct": 0
+  },
+  {
+    "q": "Replacing a variable by another variable to which it has been copied is:",
+    "options": ["Copy propagation", "Dead-code elimination", "Loop inversion", "Scheduling"],
+    "correct": 0
+  },
+  {
+    "q": "Which optimization replaces expensive operations with cheaper ones?",
+    "options": ["Strength reduction", "Constant propagation", "Common subexpression elimination", "Dead-code elimination"],
+    "correct": 0
+  },
+  {
+    "q": "Global data-flow analysis is generally performed over:",
+    "options": ["Characters", "Basic blocks and flow graphs", "Source comments", "Keywords only"],
+    "correct": 1
+  },
+  {
+    "q": "A flow graph represents:",
+    "options": ["Data types only", "Control flow among basic blocks", "Memory size only", "Source formatting"],
+    "correct": 1
+  },
+  {
+    "q": "The nodes of a flow graph generally represent:",
+    "options": ["Basic blocks", "Registers only", "Variables only", "Operators only"],
+    "correct": 0
+  },
+  {
+    "q": "An edge in a flow graph indicates:",
+    "options": ["Data type conversion", "Possible transfer of control", "Register size", "Constant value"],
+    "correct": 1
+  },
+  {
+    "q": "The first instruction of a basic block is called its:",
+    "options": ["Leader", "Trailer", "Operator", "Token"],
+    "correct": 0
+  },
+  {
+    "q": "Which instruction can be a leader of a basic block?",
+    "options": ["The first instruction", "Only an assignment", "Only a comment", "Only a declaration"],
+    "correct": 0
+  },
+  {
+    "q": "A jump target is considered a:",
+    "options": ["Leader", "Token", "Literal", "Register"],
+    "correct": 0
+  },
+  {
+    "q": "The target machine determines:",
+    "options": ["Source program grammar", "Instruction set and machine constraints", "User interface", "Database schema"],
+    "correct": 1
+  },
+  {
+    "q": "Which is an important issue in code-generator design?",
+    "options": ["Register allocation", "Font selection", "File naming", "Comment style"],
+    "correct": 0
+  },
+  {
+    "q": "Register allocation decides:",
+    "options": ["Which variables are kept in registers", "Which source language is used", "Which comments are removed", "Which compiler is installed"],
+    "correct": 0
+  },
+  {
+    "q": "Register assignment determines:",
+    "options": ["The exact register used for a value", "The number of source files", "The input format", "The number of tokens"],
+    "correct": 0
+  },
+  {
+    "q": "Instruction selection means:",
+    "options": ["Choosing appropriate target-machine instructions", "Choosing variable names", "Selecting comments", "Selecting test cases"],
+    "correct": 0
+  },
+  {
+    "q": "Instruction ordering is important because it can affect:",
+    "options": ["Program performance", "Source-code spelling", "File extension", "Number of comments"],
+    "correct": 0
+  },
+  {
+    "q": "Runtime storage management deals with:",
+    "options": ["Allocation and organization of memory during execution", "Lexical tokens", "Grammar rules", "Source indentation"],
+    "correct": 0
+  },
+  {
+    "q": "Which storage area is commonly used for procedure activation records?",
+    "options": ["Run-time stack", "Keyboard", "Cache only", "Source file"],
+    "correct": 0
+  },
+  {
+    "q": "A heap is mainly used for:",
+    "options": ["Dynamic memory allocation", "Storing keywords", "Parsing expressions", "Holding comments"],
+    "correct": 0
+  },
+  {
+    "q": "An activation record is associated with:",
+    "options": ["A procedure or function call", "A keyword", "A source-file comment", "A compiler phase only"],
+    "correct": 0
+  },
+  {
+    "q": "Which of the following may be stored in an activation record?",
+    "options": ["Return address", "Source-code color", "File icon", "Compiler logo"],
+    "correct": 0
+  },
+  {
+    "q": "Next-use information tells:",
+    "options": ["Where a variable is declared", "Whether a variable will be used again later", "The variable's data type only", "The variable's name length"],
+    "correct": 1
+  },
+  {
+    "q": "A variable that will not be used again in a block is:",
+    "options": ["Live", "Dead", "Constant", "Global"],
+    "correct": 1
+  },
+  {
+    "q": "A variable whose value may be used later is called:",
+    "options": ["Live", "Dead", "Invalid", "Static only"],
+    "correct": 0
+  },
+  {
+    "q": "The simple code generator commonly uses:",
+    "options": ["Register descriptors and address descriptors", "Only comments", "Only tokens", "Only grammar rules"],
+    "correct": 0
+  },
+  {
+    "q": "A register descriptor records:",
+    "options": ["Values currently held in registers", "Source comments", "Procedure names only", "File locations"],
+    "correct": 0
+  },
+  {
+    "q": "An address descriptor records:",
+    "options": ["Locations where the current value of a name can be found", "CPU temperature", "Source indentation", "Number of keywords"],
+    "correct": 0
+  },
+  {
+    "q": "DAG stands for:",
+    "options": ["Directed Acyclic Graph", "Data Allocation Group", "Direct Access Grammar", "Dynamic Address Generator"],
+    "correct": 0
+  },
+  {
+    "q": "A DAG can represent:",
+    "options": ["Expressions and dependencies within a basic block", "Only source comments", "Hardware wiring", "User passwords"],
+    "correct": 0
+  },
+  {
+    "q": "In a DAG, leaf nodes generally represent:",
+    "options": ["Identifiers or constants", "Only operators", "Basic blocks", "Registers only"],
+    "correct": 0
+  },
+  {
+    "q": "In a DAG, interior nodes generally represent:",
+    "options": ["Operators", "Comments", "Keywords only", "Source files"],
+    "correct": 0
+  },
+  {
+    "q": "DAG representation helps detect:",
+    "options": ["Common subexpressions", "Spelling errors", "Network failures", "Syntax highlighting"],
+    "correct": 0
+  },
+  {
+    "q": "If two expressions have the same operands and operator, they may be represented by:",
+    "options": ["A common DAG node", "Two unrelated files", "Two symbol tables", "Two activation records"],
+    "correct": 0
+  },
+  {
+    "q": "Common subexpression elimination avoids:",
+    "options": ["Recomputing the same expression", "Loading the compiler", "Creating source files", "Reading input"],
+    "correct": 0
+  },
+  {
+    "q": "Which optimization moves loop-invariant computations outside a loop?",
+    "options": ["Code motion", "Copy propagation", "Peephole matching", "Register spilling"],
+    "correct": 0
+  },
+  {
+    "q": "Which is a local optimization?",
+    "options": ["Optimization within a basic block", "Optimization across unrelated programs", "Operating-system scheduling", "Network routing"],
+    "correct": 0
+  },
+  {
+    "q": "Which is an example of machine-dependent optimization?",
+    "options": ["Using target-machine instruction properties", "Removing comments", "Renaming variables", "Formatting code"],
+    "correct": 0
+  },
+  {
+    "q": "Which is an example of machine-independent optimization?",
+    "options": ["Constant folding", "Choosing a specific CPU register", "Using a target-specific instruction", "Exploiting a special addressing mode"],
+    "correct": 0
+  },
+  {
+    "q": "Peephole optimization may remove:",
+    "options": ["Redundant load/store instructions", "All functions", "All variables", "The symbol table"],
+    "correct": 0
+  },
+  {
+    "q": "The code generator receives as input:",
+    "options": ["Intermediate representation", "Only machine code", "Only comments", "Only object files"],
+    "correct": 0
+  },
+  {
+    "q": "The output of a code generator is generally:",
+    "options": ["Target code", "Source tokens", "Parse tree only", "Grammar"],
+    "correct": 0
+  },
+  {
+    "q": "A target instruction may be selected based on:",
+    "options": ["Cost and machine capabilities", "Variable spelling", "Comment length", "Source-file name"],
+    "correct": 0
+  },
+  {
+    "q": "The purpose of flow-graph analysis is to understand:",
+    "options": ["Control-flow relationships", "Keyboard input", "File permissions", "User interface layout"],
+    "correct": 0
+  },
+  {
+    "q": "Which optimization can reduce the number of instructions executed by eliminating unreachable code?",
+    "options": ["Unreachable-code elimination", "Constant folding", "Register assignment", "Instruction scheduling"],
+    "correct": 0
+  }
 ];
 
 async function main() {
