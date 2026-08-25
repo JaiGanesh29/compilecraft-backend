@@ -257,9 +257,62 @@ router.get('/analytics', auth, async (req, res) => {
   }
 });
 
+// 8. Delete a single attempt
+router.delete('/attempts/:id', auth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.answer.deleteMany({ where: { attemptId: id } });
+    await prisma.attempt.delete({ where: { id } });
+    res.json({ message: 'Attempt record deleted successfully' });
+  } catch (error) {
+    console.error('Delete attempt error:', error);
+    res.status(500).json({ error: 'Failed to delete attempt: ' + error.message });
+  }
+});
+
+// 9. Clear all student marks/attempts
+router.delete('/attempts', auth, async (req, res) => {
+  try {
+    await prisma.answer.deleteMany({});
+    const deleted = await prisma.attempt.deleteMany({});
+    res.json({ message: `Successfully cleared all ${deleted.count} attempts and student scores.` });
+  } catch (error) {
+    console.error('Clear attempts error:', error);
+    res.status(500).json({ error: 'Failed to clear attempts: ' + error.message });
+  }
+});
+
+// 10. Delete a specific student (and their attempts)
+router.delete('/students/:id', auth, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const attempts = await prisma.attempt.findMany({ where: { studentId: id } });
+    const attemptIds = attempts.map(a => a.id);
+    await prisma.answer.deleteMany({ where: { attemptId: { in: attemptIds } } });
+    await prisma.attempt.deleteMany({ where: { studentId: id } });
+    await prisma.student.delete({ where: { id } });
+    res.json({ message: 'Student and associated marks deleted successfully' });
+  } catch (error) {
+    console.error('Delete student error:', error);
+    res.status(500).json({ error: 'Failed to delete student: ' + error.message });
+  }
+});
+
+// 11. Clear all students and marks
+router.delete('/students', auth, async (req, res) => {
+  try {
+    await prisma.answer.deleteMany({});
+    await prisma.attempt.deleteMany({});
+    const deletedStudents = await prisma.student.deleteMany({});
+    res.json({ message: `Successfully cleared all ${deletedStudents.count} registered students and marks.` });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to clear students: ' + error.message });
+  }
+});
+
 const { seedDatabase } = require('../../prisma/seed');
 
-// 7. Reseed and reset questions
+// 12. Reseed and reset questions
 router.post('/reseed', auth, async (req, res) => {
   try {
     const count = await seedDatabase(prisma);
