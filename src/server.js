@@ -46,6 +46,23 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong on the server' });
 });
 
+const prisma = require('./db');
+const { seedDatabase } = require('../prisma/seed');
+
+// Run question sync and startup checks
+(async () => {
+  try {
+    const qCount = await prisma.question.count();
+    const firstQ = await prisma.question.findFirst();
+    if (qCount !== 50 || (firstQ && !firstQ.q.includes('converts intermediate code into target code'))) {
+      console.log('Detected outdated question set. Syncing 50 questions from Unit V...');
+      await seedDatabase(prisma);
+    }
+  } catch (err) {
+    console.error('Initial question sync error:', err);
+  }
+})();
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`CompileCraft server running on port ${PORT}`);
 });

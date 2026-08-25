@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const prisma = require('../db');
+const { seedDatabase, questions } = require('../../prisma/seed');
 
 // Rate limiting for attempt submissions: max 5 requests per 15 minutes per IP
 const submitLimiter = rateLimit({
@@ -31,6 +32,14 @@ router.get('/init', async (req, res) => {
   const { rollNumber } = req.query;
 
   try {
+    // Auto-check and sync questions if needed
+    const qCount = await prisma.question.count();
+    const firstQ = await prisma.question.findFirst();
+    if (qCount !== 50 || (firstQ && !firstQ.q.includes('converts intermediate code into target code'))) {
+      console.log('Syncing Unit V questions in database...');
+      await seedDatabase(prisma);
+    }
+
     const settings = await getSettings();
     let hasAttempted = false;
     let student = null;
@@ -115,13 +124,22 @@ router.post('/register', async (req, res) => {
 // 3. Get Questions (Crucial: Correct answer indices must NOT be exposed)
 router.get('/questions', async (req, res) => {
   try {
+    const qCount = await prisma.question.count();
+    const firstQ = await prisma.question.findFirst();
+    if (qCount !== 50 || (firstQ && !firstQ.q.includes('converts intermediate code into target code'))) {
+      console.log('Auto-syncing Unit V 50 questions in database on /questions call...');
+      await seedDatabase(prisma);
+    }
+
     const settings = await getSettings();
 
     if (!settings.quizOpen) {
       return res.status(403).json({ error: 'The quiz is currently closed by the instructor.' });
     }
 
-    const dbQuestions = await prisma.question.findMany();
+    const dbQuestions = await prisma.question.findMany({
+      orderBy: { id: 'asc' }
+    });
     
     // Format questions to hide correct answer index
     let formattedQuestions = dbQuestions.map(q => {
