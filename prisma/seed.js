@@ -255,7 +255,8 @@ const questions = [
   }
 ];
 
-async function main() {
+async function seedDatabase(prismaInstance) {
+  const prisma = prismaInstance || new PrismaClient();
   console.log('Seeding database...');
 
   // 1. Seed Admin
@@ -310,13 +311,19 @@ async function main() {
     });
   }
   console.log(`Successfully seeded ${questions.length} questions.`);
+  return questions.length;
 }
 
-main()
-  .catch((e) => {
-    console.error('Error during database seed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+if (require.main === module) {
+  const p = new PrismaClient();
+  seedDatabase(p)
+    .catch((e) => {
+      console.error('Error during database seed:', e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await p.$disconnect();
+    });
+}
+
+module.exports = { seedDatabase, questions };

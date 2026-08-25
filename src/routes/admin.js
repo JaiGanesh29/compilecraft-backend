@@ -243,8 +243,6 @@ router.get('/analytics', auth, async (req, res) => {
         correctAttempts: s.correct
       }))
       .sort((a, b) => a.correctPct - b.correctPct) // Ascending correct percentage = hardest first
-      .slice(0, 10); // top 10 hardest
-
     res.json({
       totalStudents,
       totalAttempts,
@@ -256,6 +254,19 @@ router.get('/analytics', auth, async (req, res) => {
   } catch (error) {
     console.error('Analytics error:', error);
     res.status(500).json({ error: 'Failed to retrieve analytics' });
+  }
+});
+
+const { seedDatabase } = require('../../prisma/seed');
+
+// 7. Reseed and reset questions
+router.post('/reseed', auth, async (req, res) => {
+  try {
+    const count = await seedDatabase(prisma);
+    res.json({ message: `Successfully reset and loaded ${count} questions.`, count });
+  } catch (error) {
+    console.error('Reseed error:', error);
+    res.status(500).json({ error: 'Failed to reseed database: ' + error.message });
   }
 });
 
